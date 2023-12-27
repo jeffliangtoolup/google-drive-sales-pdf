@@ -56,6 +56,12 @@ function download(auth, fileId) {
 	const drive = google.drive({version: 'v3', auth});
 	drive.files.get({fileId: fileId, alt: 'media'}, {responseType: 'stream'},
     function(err, res){
+		console.log("DOWNLOADING FILE")
+		if (err) {
+			console.error('The API returned an error: ' + err);
+			res.send({code: 404, status: 'error', message: 'An error has occurred: ' + err});
+			return;
+		}
 		var chunks = [];
 			res.data
 			.on('data', function(chunk) {
