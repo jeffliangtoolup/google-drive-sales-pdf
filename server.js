@@ -116,7 +116,10 @@ function listFiles(auth, query, nextPageToken, pageSize = 100, fields) {
 			orderBy: 'modifiedTime desc',
 			pageToken: nextPageToken
 		}, (err, res, req) => {
-			if (err) reject({err: err, files: null});
+			if (err) {
+				console.log('The API returned an error: ' + err);
+				reject({err: err, files: null});
+			}
 			const nextPageToken = res.data.nextPageToken;
 			var files = res.data.files;
 			resolve({files: files, nextPageToken: nextPageToken});
