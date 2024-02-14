@@ -171,6 +171,9 @@ test();
 
 */
 
+app.get('/receiptimages', function(req,res){
+	res.send('imagesend');
+});
 
 var listener = app.listen(process.env.PORT, function() {
 	console.log('Your app is listening on port ' + listener.address().port);
