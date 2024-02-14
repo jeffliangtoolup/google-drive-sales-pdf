@@ -92,7 +92,6 @@ function getKeyFromHeader(headers) {
 	return {client_email: client_email, private_key: private_key};
 }
 
-
 function getAuthorize(credentials) {
   const jwtClient = new google.auth.JWT(
 	  credentials.client_email,
@@ -103,7 +102,6 @@ function getAuthorize(credentials) {
 	);
 	return jwtClient;
 }
-
 
 function listFiles(auth, query, nextPageToken, pageSize = 100, fields) {
 	const drive = google.drive({version: 'v3', auth});
@@ -172,8 +170,39 @@ test();
 */
 
 app.get('/receiptimages', function(req,res){
-	res.send('imagesend');
+
+
+	uploadBase64File()
+
+
 });
+
+async function uploadBase64File(auth, base64Content, fileName) {
+	const {google} = require('googleapis');
+	const drive = google.drive({version: 'v3', auth});
+	const fileMetadata = {
+		'name': fileName,
+		// Add more metadata as needed
+	};
+	const media = {
+		mimeType: 'application/octet-stream', // Adjust as needed
+		body: Buffer.from(base64Content, 'base64')
+	};
+
+	try {
+		const file = await drive.files.create({
+			resource: fileMetadata,
+			media: media,
+			fields: 'id'
+		});
+
+		console.log('File ID:', file.data.id);
+		return file.data.id;
+	} catch (error) {
+		console.error('Error uploading file:', error);
+		throw error;
+	}
+}
 
 var listener = app.listen(process.env.PORT, function() {
 	console.log('Your app is listening on port ' + listener.address().port);
