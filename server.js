@@ -2,7 +2,7 @@ const fs = require('fs');
 var express = require('express');
 var app = express();
 app.use(express.static('public'));
-app.use(express.json({ limit: '80mb' }))
+app.use(express.json({ limit: '100mb' }))
 var post = null;
 const {google} = require('googleapis');
 const drive = google.drive('v3');
@@ -235,7 +235,7 @@ async function createFolder(driveService, itemReceiptName, sharedDriveId) {
 
 function getMimeType(fileType) {
 	const mimeTypes = {
-		'JPGIMAGE': 'image/jpeg',
+		'JPGIMAGE': 'image/png',
 		'GIFIMAGE': 'image/gif',
 		'PNGIMAGE': 'image/png',
 		'SVG': 'image/svg+xml',
