@@ -172,7 +172,6 @@ test();
 
 app.post('/receiptimages', async (req, res) => {
 	try {
-		console.log('Request received:', req.body);
 		const { auth, sharedDriveId, itemReceiptName, files } = req.body;
 
 		const driveService = await authenticateGoogleDrive(auth.client_email, auth.private_key);
@@ -206,7 +205,7 @@ async function authenticateGoogleDrive(client_email, private_key) {
 		['https://www.googleapis.com/auth/drive'],
 		null
 	);
-	return google.drive({ version: 'v3', auth: await auth.getClient() });
+	return google.drive({ version: 'v3', auth });
 }
 
 async function createFolder(driveService, itemReceiptName, sharedDriveId) {
