@@ -178,7 +178,7 @@ app.post('/receiptimages', async (req, res) => {
 		res.json({
 			code: 200,
 			status: 'success',
-			message: 'All files uploaded successfully to folder: ' + driveService + auth + sharedDriveId + itemReceiptName + files,
+			message: 'All files uploaded successfully to folder: ' + auth + sharedDriveId + itemReceiptName + files,
 		});
 
 		// // Create a folder named after the item receipt within the shared drive
