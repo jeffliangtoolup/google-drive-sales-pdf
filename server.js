@@ -203,16 +203,14 @@ app.post('/receiptimages', async (req, res) => {
 	}
 });
 
-async function authenticateGoogleDrive() {
-	const auth = new google.auth.GoogleAuth({
-
-		credentials: {
-			client_email: process.env.GOOGLE_CLIENT_EMAIL,
-			private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-		},
-		scopes: ['https://www.googleapis.com/auth/drive.file'],
-	});
-
+async function authenticateGoogleDrive(client_email, private_key) {
+	const auth = new google.auth.JWT(
+		client_email,
+		null,
+		private_key.replace(/\\n/g, '\n'),
+		['https://www.googleapis.com/auth/drive'],
+		null
+	);
 	return google.drive({ version: 'v3', auth: await auth.getClient() });
 }
 
