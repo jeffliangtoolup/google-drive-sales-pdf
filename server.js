@@ -7,6 +7,7 @@ var post = null;
 const {google} = require('googleapis');
 const drive = google.drive('v3');
 var counter = 0;
+const {Readable} = require('stream');
 
 app.get('/', function(req,res){
 	res.send('works');
@@ -223,16 +224,21 @@ async function createFolder(driveService, itemReceiptName, sharedDriveId) {
 	return folder.data.id;
 }
 
-async function uploadBase64File(driveService, folderId, base64Content, fileName, mimeType, sharedDriveId) {
+async function uploadBase64File(driveService, folderId, base64Content, fileName, mimeType) {
+	const decodedContent = Buffer.from(base64Content, 'base64');
+
+	const mediaStream = bufferToStream(decodedContent);
+
 	const fileMetadata = {
 		'name': fileName,
 		'parents': [folderId],
-		'driveId': sharedDriveId,
 	};
+
 	const media = {
 		mimeType: mimeType,
-		body: Buffer.from(base64Content, 'base64'),
+		body: mediaStream,
 	};
+
 	const file = await driveService.files.create({
 		requestBody: fileMetadata,
 		media: media,
@@ -242,6 +248,14 @@ async function uploadBase64File(driveService, folderId, base64Content, fileName,
 
 	return file.data.id;
 }
+
+function bufferToStream(buffer) {
+	const stream = new Readable();
+	stream.push(buffer);
+	stream.push(null);
+	return stream;
+}
+
 
 var listener = app.listen(process.env.PORT, function() {
 	console.log('Your app is listening on port ' + listener.address().port);
