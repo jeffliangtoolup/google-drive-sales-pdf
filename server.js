@@ -235,7 +235,7 @@ async function createFolder(driveService, itemReceiptName, sharedDriveId) {
 
 function getMimeType(fileType) {
 	const mimeTypes = {
-		'JPGIMAGE': 'image/png',
+		'JPGIMAGE': 'image/jpeg',
 		'GIFIMAGE': 'image/gif',
 		'PNGIMAGE': 'image/png',
 		'SVG': 'image/svg+xml',
@@ -247,8 +247,10 @@ function getMimeType(fileType) {
 
 async function uploadBase64File(driveService, folderId, base64Content, fileName, mimeType) {
 	const decodedContent = Buffer.from(base64Content, 'base64');
+	console.log(decodedContent)
 
 	const mediaStream = bufferToStream(decodedContent);
+	console.log(mediaStream)
 
 	const fileMetadata = {
 		'name': fileName,
@@ -259,6 +261,7 @@ async function uploadBase64File(driveService, folderId, base64Content, fileName,
 		mimeType: mimeType,
 		body: mediaStream,
 	};
+	console.log(media)
 
 	const file = await driveService.files.create({
 		requestBody: fileMetadata,
