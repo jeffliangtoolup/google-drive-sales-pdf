@@ -169,39 +169,86 @@ test();
 
 */
 
-app.get('/receiptimages', function(req,res){
-
-
-	uploadBase64File()
-
-
-});
-
-async function uploadBase64File(auth, base64Content, fileName) {
-	const {google} = require('googleapis');
-	const drive = google.drive({version: 'v3', auth});
-	const fileMetadata = {
-		'name': fileName,
-		// Add more metadata as needed
-	};
-	const media = {
-		mimeType: 'application/octet-stream', // Adjust as needed
-		body: Buffer.from(base64Content, 'base64')
-	};
+app.post('/receiptimages', async (req, res) => {
+	const { auth, sharedDriveId, itemReceiptName, files } = req.body;
 
 	try {
-		const file = await drive.files.create({
-			resource: fileMetadata,
-			media: media,
-			fields: 'id'
+		const driveService = await authenticateGoogleDrive(auth.client_email, auth.private_key);
+
+		res.json({
+			code: 200,
+			status: 'success',
+			message: 'All files uploaded successfully to folder: ' + driveService + auth + sharedDriveId + itemReceiptName + files,
 		});
 
-		console.log('File ID:', file.data.id);
-		return file.data.id;
+		// // Create a folder named after the item receipt within the shared drive
+		// const folderId = await createFolder(driveService, itemReceiptName, sharedDriveId);
+		//
+		// // Upload files to the created folder in the shared drive
+		// const uploadPromises = files.map(fileData =>
+		// 	uploadBase64File(driveService, folderId, fileData.content, fileData.fileName, fileData.fileType, sharedDriveId)
+		// );
+		//
+		// const uploadedFileIds = await Promise.all(uploadPromises);
+		//
+		// res.json({
+		// 	code: 200,
+		// 	status: 'success',
+		// 	message: 'All files uploaded successfully to folder: ' + itemReceiptName,
+		// 	uploadedFileIds: uploadedFileIds
+		// });
 	} catch (error) {
-		console.error('Error uploading file:', error);
-		throw error;
+		console.error('Error:', error);
+		res.status(500).json({ code: 500, status: 'error', message: 'Failed to upload files' });
 	}
+});
+
+async function authenticateGoogleDrive() {
+	const auth = new google.auth.GoogleAuth({
+
+		credentials: {
+			client_email: process.env.GOOGLE_CLIENT_EMAIL,
+			private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+		},
+		scopes: ['https://www.googleapis.com/auth/drive.file'],
+	});
+
+	return google.drive({ version: 'v3', auth: await auth.getClient() });
+}
+
+async function createFolder(driveService, folderName, sharedDriveId) {
+	const fileMetadata = {
+		'name': folderName,
+		'mimeType': 'application/vnd.google-apps.folder',
+		'parents': [sharedDriveId], // Specify the shared drive as the parent
+		'driveId': sharedDriveId, // Specify the target shared drive
+	};
+	const folder = await driveService.files.create({
+		resource: fileMetadata,
+		fields: 'id',
+		supportsAllDrives: true,
+	});
+	return folder.data.id;
+}
+
+async function uploadBase64File(driveService, folderId, base64Content, fileName, mimeType, sharedDriveId) {
+	const fileMetadata = {
+		'name': fileName,
+		'parents': [folderId],
+		'driveId': sharedDriveId,
+	};
+	const media = {
+		mimeType: mimeType,
+		body: Buffer.from(base64Content, 'base64'),
+	};
+	const file = await driveService.files.create({
+		requestBody: fileMetadata,
+		media: media,
+		fields: 'id',
+		supportsAllDrives: true,
+	});
+
+	return file.data.id;
 }
 
 var listener = app.listen(process.env.PORT, function() {
