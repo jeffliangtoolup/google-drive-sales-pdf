@@ -170,17 +170,16 @@ test();
 */
 
 app.post('/receiptimages', async (req, res) => {
-	const { auth, sharedDriveId, itemReceiptName, files } = req.body;
-
 	try {
-		// const driveService = await authenticateGoogleDrive(auth.client_email, auth.private_key);
+		console.log('Request received:', req.body);
+		const { auth, sharedDriveId, itemReceiptName, files } = req.body;
 
 		res.json({
 			code: 200,
 			status: 'success',
-			message: 'All files uploaded successfully to folder: ' + auth + sharedDriveId + itemReceiptName + files,
+			message: 'All files uploaded successfully to folder: ',
 		});
-
+		// const driveService = await authenticateGoogleDrive(auth.client_email, auth.private_key);
 		// // Create a folder named after the item receipt within the shared drive
 		// const folderId = await createFolder(driveService, itemReceiptName, sharedDriveId);
 		//
