@@ -2,6 +2,7 @@ const fs = require('fs');
 var express = require('express');
 var app = express();
 app.use(express.static('public'));
+app.use(express.json());
 var post = null;
 const {google} = require('googleapis');
 const drive = google.drive('v3');
