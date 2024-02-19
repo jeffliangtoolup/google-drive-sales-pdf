@@ -180,9 +180,18 @@ app.post('/receiptimages', async (req, res) => {
 		const folderId = await createFolder(driveService, itemReceiptName, sharedDriveId);
 
 
-		const uploadPromises = files.map(fileData =>
-			uploadBase64File(driveService, folderId, fileData.content, fileData.fileName, fileData.fileType, sharedDriveId)
-		);
+		const uploadPromises = files.map(fileData => {
+			const mimeType = getMimeType(fileData.fileType);
+
+			return uploadBase64File(
+				driveService,
+				folderId,
+				fileData.content,
+				fileData.fileName,
+				mimeType,
+				sharedDriveId
+			);
+		});
 
 		const uploadedFileIds = await Promise.all(uploadPromises);
 
@@ -222,6 +231,18 @@ async function createFolder(driveService, itemReceiptName, sharedDriveId) {
 		supportsAllDrives: true,
 	});
 	return folder.data.id;
+}
+
+function getMimeType(fileType) {
+	const mimeTypes = {
+		'JPGIMAGE': 'image/jpeg',
+		'GIFIMAGE': 'image/gif',
+		'PNGIMAGE': 'image/png',
+		'SVG': 'image/svg+xml',
+		'TIFFIMAGE': 'image/tiff',
+		'ICON': 'image/x-icon', // Assuming these are favicon.ico files. Adjust if different.
+	};
+	return mimeTypes[fileType] || 'application/octet-stream'; // Default MIME type
 }
 
 async function uploadBase64File(driveService, folderId, base64Content, fileName, mimeType) {
