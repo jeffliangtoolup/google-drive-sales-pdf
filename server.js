@@ -173,7 +173,7 @@ app.post('/receiptimages', async (req, res) => {
 	const { auth, sharedDriveId, itemReceiptName, files } = req.body;
 
 	try {
-		const driveService = await authenticateGoogleDrive(auth.client_email, auth.private_key);
+		// const driveService = await authenticateGoogleDrive(auth.client_email, auth.private_key);
 
 		res.json({
 			code: 200,
@@ -214,12 +214,12 @@ async function authenticateGoogleDrive(client_email, private_key) {
 	return google.drive({ version: 'v3', auth: await auth.getClient() });
 }
 
-async function createFolder(driveService, folderName, sharedDriveId) {
+async function createFolder(driveService, itemReceiptName, sharedDriveId) {
 	const fileMetadata = {
-		'name': folderName,
+		'name': itemReceiptName,
 		'mimeType': 'application/vnd.google-apps.folder',
-		'parents': [sharedDriveId], // Specify the shared drive as the parent
-		'driveId': sharedDriveId, // Specify the target shared drive
+		'parents': [sharedDriveId],
+		'driveId': sharedDriveId,
 	};
 	const folder = await driveService.files.create({
 		resource: fileMetadata,
