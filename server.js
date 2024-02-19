@@ -175,28 +175,23 @@ app.post('/receiptimages', async (req, res) => {
 		console.log('Request received:', req.body);
 		const { auth, sharedDriveId, itemReceiptName, files } = req.body;
 
+		const driveService = await authenticateGoogleDrive(auth.client_email, auth.private_key);
+
+		const folderId = await createFolder(driveService, itemReceiptName, sharedDriveId);
+
+
+		const uploadPromises = files.map(fileData =>
+			uploadBase64File(driveService, folderId, fileData.content, fileData.fileName, fileData.fileType, sharedDriveId)
+		);
+
+		const uploadedFileIds = await Promise.all(uploadPromises);
+
 		res.json({
 			code: 200,
 			status: 'success',
-			message: 'All files uploaded successfully to folder: ',
+			message: 'All files uploaded successfully to folder: ' + itemReceiptName,
+			uploadedFileIds: uploadedFileIds
 		});
-		// const driveService = await authenticateGoogleDrive(auth.client_email, auth.private_key);
-		// // Create a folder named after the item receipt within the shared drive
-		// const folderId = await createFolder(driveService, itemReceiptName, sharedDriveId);
-		//
-		// // Upload files to the created folder in the shared drive
-		// const uploadPromises = files.map(fileData =>
-		// 	uploadBase64File(driveService, folderId, fileData.content, fileData.fileName, fileData.fileType, sharedDriveId)
-		// );
-		//
-		// const uploadedFileIds = await Promise.all(uploadPromises);
-		//
-		// res.json({
-		// 	code: 200,
-		// 	status: 'success',
-		// 	message: 'All files uploaded successfully to folder: ' + itemReceiptName,
-		// 	uploadedFileIds: uploadedFileIds
-		// });
 	} catch (error) {
 		console.error('Error:', error);
 		res.status(500).json({ code: 500, status: 'error', message: 'Failed to upload files' });
