@@ -252,12 +252,13 @@ async function uploadBase64File(driveService, folderId, base64Content, fileName,
 
 	const fileMetadata = {
 		'name': fileName,
+		'mimeType': mimeType,
 		'parents': [folderId],
 	};
 
 	const media = {
 		mimeType: mimeType,
-		body: mediaStream,
+		body: mediaStream
 	};
 	console.log(media)
 
