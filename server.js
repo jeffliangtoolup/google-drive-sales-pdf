@@ -272,10 +272,12 @@ async function uploadBase64File(driveService, folderId, base64Content, fileName,
 }
 
 function bufferToStream(buffer) {
-	const stream = new Readable();
-	stream.push(buffer);
-	stream.push(null);
-	return stream;
+	return new Promise((resolve, reject) => {
+		const stream = new Readable();
+		stream.push(buffer);
+		stream.push(null);
+		resolve(stream);
+	});
 }
 
 
