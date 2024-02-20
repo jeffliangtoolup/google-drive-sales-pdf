@@ -247,10 +247,8 @@ function getMimeType(fileType) {
 
 async function uploadBase64File(driveService, folderId, base64Content, fileName, mimeType) {
 	const decodedContent = Buffer.from(base64Content, 'base64');
-	console.log(decodedContent)
 
-	const mediaStream = bufferToStream(decodedContent);
-	console.log(mediaStream)
+	const mediaStream = await bufferToStream(decodedContent);
 
 	const fileMetadata = {
 		'name': fileName,
